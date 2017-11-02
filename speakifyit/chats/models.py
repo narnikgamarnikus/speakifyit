@@ -4,26 +4,93 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from channels import Group
+from .settings import MSG_TYPE_MESSAGE, MESSAGE_TYPES_CHOICES
+import ujson as json
+from .signals import create_message
+from django.utils import timezone
+from model_utils.models import TimeStampedModel, SoftDeletableModel
+from model_utils import FieldTracker
 
 
 @python_2_unicode_compatible
-class Room(models.Model):
+class Base(SoftDeletableModel, TimeStampedModel):
+	
+	tracker = FieldTracker()
 
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
-
-    def __str__(self):
-    	return '-'.join(
-    		user.username for user in self.users
-    	)
+	class Meta:
+		abstract = True
 
 
 @python_2_unicode_compatible
-class Message(models.Model):
+class Room(Base):
+
+	users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+
+	def __str__(self):
+		return '-'.join(
+			user.username for user in self.users
+		)
+
+	def clean(self):
+		if self.users.count() > 2:
+			raise ValidationError(_('The number of users in the room should not exceed 2.'))
+
+	@property
+	def websocket_group(self):
+	    """
+	    Returns the Channels Group that sockets should subscribe to to get sent
+	    messages as they are generated.
+	    """
+	    return Group("room-%s" % self.id)
+
+	def add_to_room(self, user, team_id, team_name, team_align):
+		if not user in self.users.all():
+			self.users.add(user)
+			self.save()
+
+	def leave_from_room(self, user, team_name, team_align):
+		if user in self.users.all():
+			self.users.delete(user)
+			self.save()
+
+	def send_message(self, message, user, msg_type=MSG_TYPE_MESSAGE):
+		"""
+		Called to send a message to the room on behalf of a user.
+		"""
+		final_msg = {
+			'room_id': str(self.id), 'message': message, 
+			'username': user.username, "timestamp": timezone.now().strftime('%I:%M:%S %p')
+		}
+		
+		# Send signal for create new message
+		create_message.send(
+			sender=self.__class__, room=self.id, user=user, 
+			msg_type=msg_type, content=message
+			)
+
+		# Send out the message to everyone in the room
+		self.websocket_group.send(
+		    {"text": json.dumps(final_msg)}
+		)
+
+
+@python_2_unicode_compatible
+class Message(Base):
 
 	room = models.ForeignKey(Room, related_name='messages')
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
-	timestamp = models.DateTimeField(db_index=True, default=timezone.now)
+	#timestamp = models.DateTimeField(db_index=True, default=timezone.now)
 	content = models.TextField()
+	msg_type = models.PositiveSmallIntegerField(
+		choices=MESSAGE_TYPES_CHOICES,
+		default=MESSAGE_TYPES_CHOICES[0][0],
+	)
+
+	@property
+	def timestamp(self):
+		return self.created.strftime('%I:%M:%S %p')
 
 	def __str__(self):
 		return '{0} at {1}'.format(self.user, self.timestamp)

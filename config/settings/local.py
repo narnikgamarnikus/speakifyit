@@ -80,8 +80,6 @@ CELERY_ALWAYS_EAGER = True
 # DJANGO_CHANNELS https://channels.readthedocs.io/en/stable/getting-started.html
 # ------------------------------------------------------------------------------
 
-REDIS_LOCATION = '{0}/{1}'.format(env('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
-
 
 CHANNEL_LAYERS = {
     "default": {

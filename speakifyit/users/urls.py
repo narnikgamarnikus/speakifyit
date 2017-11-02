@@ -22,5 +22,5 @@ urlpatterns = [
         regex=r'^~update/$',
         view=views.UserUpdateView.as_view(),
         name='update'
-    ),
+    )
 ]

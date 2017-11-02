@@ -1,15 +1,22 @@
 from channels.routing import route, include
-from speakifyit.chats.consumers import chat_connect, chat_message, chat_disconnect
-import json
+from speakifyit.chats.consumers import chat_connect, chat_message, chat_disconnect, chat_join, chat_leave, chat_send
 
-
-chat_routing = [
-    route("websocket.connect", chat_connect, ),#path=r'^/(?P<username_from>[a-zA-Z0-9_]+)/(?P<username_to>[a-zA-Z0-9_]+)/$'),
-    route("websocket.receive", chat_message, ),#path=r'^/(?P<username_from>[a-zA-Z0-9_]+)/(?P<username_to>[a-zA-Z0-9_]+)/$'),
-    route("websocket.disconnect", chat_disconnect, ),#path=r'^/(?P<username_from>[a-zA-Z0-9_]+)/(?P<username_to>[a-zA-Z0-9_]+)/$'),
+websocket_chat_routing = [
+    route("websocket.connect", chat_connect, ),
+    route("websocket.receive", chat_message, ),
+    route("websocket.disconnect", chat_disconnect, ),
 ]
 
+chat_routing = [
+    # Handling different chat commands (websocket.receive is decoded and put
+    # onto this channel) - routed on the "command" attribute of the decoded
+    # message.
+    route("chat.receive", chat_join, command="^join$"),
+    route("chat.receive", chat_leave, command="^leave$"),
+    route("chat.receive", chat_send, command="^send$"),
+]
 
 channel_routing = [
-    include(chat_routing, path=r'^/chat/'),
+    include(websocket_chat_routing),
+    include(chat_routing),
 ]

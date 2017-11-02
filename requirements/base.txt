@@ -62,3 +62,9 @@ django-autocomplete-light
 django_annoying
 autobahn
 django-avatar
+ujson
+django-image-cropping
+easy_thumbnails
+django-rest-auth
+djangorestframework
+django-rest-auth
