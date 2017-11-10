@@ -18,6 +18,8 @@ rest_auth = [
 
 api_urls = chats_urlpatterns + users_urlpatterns + rest_auth
 
+from config.api import api
+
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
@@ -28,7 +30,7 @@ urlpatterns = [
     # User management
     url(r'^users/', include('speakifyit.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^api/', include(api_urls, namespace='api')),
+    url(r'^api/', include(api.urls, namespace='api')),
 
 
     # Your stuff: custom urls includes go here
