@@ -68,3 +68,5 @@ easy_thumbnails
 django-rest-auth
 djangorestframework
 django-rest-auth
+django-cors-headers
+channels_api

@@ -70,7 +70,7 @@ from rest_framework.response import Response
 
 from .models import User
 from .serializers import UserSerializer, UserWriteSerializer
-
+from rest_framework import permissions
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -102,20 +102,20 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.user.is_authenticated():
             serializer = self.serializer_class(request.user)
             return Response(status=status.HTTP_200_OK, data=serializer.data)
+        
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    @list_route(methods=['POST'])
+    @list_route(methods=['POST'], authentication_classes=[])
     def login(self, request, format=None):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
         user = authenticate(username=email, password=password)
-
         if user:
             login(request, user)
-            return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK, data=user.token)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @list_route(methods=['POST'])
+    @list_route(methods=['POST'], authentication_classes=[])
     def register(self, request):
         last_name = request.data.get('last_name', None)
         first_name = request.data.get('first_name', None)

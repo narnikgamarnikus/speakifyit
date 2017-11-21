@@ -59,6 +59,7 @@ class User(AbstractUser):
         default=GENDERS.male,
         max_length=6
     )
+    about = models.CharField(max_length=255, null=True, blank=True)
     token = models.UUIDField(verbose_name=_('Token'), default=uuid4, editable=False)
 
     class Meta:

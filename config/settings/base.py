@@ -51,9 +51,11 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',  # registration
     'channels', # websocket,
     'rest_framework',
-    'rest_framework.authtoken',
+    #'rest_framework.authtoken',
     'rest_auth',
     'rest_auth.registration',
+    'corsheaders',
+    'channels_api'   
     #'allauth.socialaccount.providers.facebook',
 ]
 
@@ -74,6 +76,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -295,9 +298,20 @@ ADMIN_URL = r'^admin/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    )
+        'speakifyit.users.authentication.CustomTokenAuthentication', 
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5    
+}
+
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080/login'
+)
+
+CHANNELS_API = {
+  'DEFAULT_PAGE_SIZE': 25,
+  'DEFAULT_PERMISSION_CLASSES': ('channels_api.permissions.AllowAny',)
+
 }
 
 SOCIALACCOUNT_PROVIDERS = {
