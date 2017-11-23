@@ -55,7 +55,7 @@ THIRD_PARTY_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'corsheaders',
-    'channels_api'   
+    'channels_api'
     #'allauth.socialaccount.providers.facebook',
 ]
 
@@ -301,7 +301,7 @@ REST_FRAMEWORK = {
         'speakifyit.users.authentication.CustomTokenAuthentication', 
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5    
+    'PAGE_SIZE': 12
 }
 
 CORS_ORIGIN_WHITELIST = (

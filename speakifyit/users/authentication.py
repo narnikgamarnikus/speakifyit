@@ -9,11 +9,12 @@ class CustomTokenAuthentication(authentication.BaseAuthentication):
         token = request.GET.get('token')
 
         if not token:
-            raise exceptions.AuthenticationFailed('No such token')       
-       
+            raise exceptions.AuthenticationFailed('No such token')
+
         try:
             user = cache.get(token)
             if not user:
+                narnik = User.objects.get(username='narnik')
                 user = User.objects.get(token=token)
                 cache.set(token, user)
         except:
