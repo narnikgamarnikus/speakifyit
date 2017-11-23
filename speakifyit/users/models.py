@@ -87,6 +87,7 @@ class User(AbstractUser):
     )
     about = models.CharField(max_length=255, null=True, blank=True)
     token = models.UUIDField(verbose_name=_('Token'), default=uuid4, editable=False)
+    contacts = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
     class Meta:
         verbose_name = _('User')
@@ -114,3 +115,18 @@ class User(AbstractUser):
 
     def get_full_name(self):
         return self.full_name
+
+
+class ContactRequest(Base):
+
+    request_from = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='request_from') 
+    request_to = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='request_to')
+
+    accepted = models.BooleanField(default=False)
+
+    def clean(self):
+        if self.request_from == self.request_to:
+            raise  ValidationError('You can not send requests to yourself')
+
+    def __str__(self):
+        return str(self.pk)
