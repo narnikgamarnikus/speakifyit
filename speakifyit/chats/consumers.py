@@ -1,34 +1,56 @@
 # In consumers.py
-from channels import Group
+from channels import Group, Channel
 from .models import Message, Room
 import ujson as json
 from channels.sessions import channel_session
 from channels.auth import channel_session_user, channel_session_user_from_http
 from channels.security.websockets import allowed_hosts_only
-from .utils import get_room_or_error, catch_client_error
+from .utils import get_room_or_error, catch_client_error, check_token, get_user, set_user, path_token_user
 
-
-@channel_session_user_from_http
+@path_token_user
 def chat_connect(message):
+	if not message.user.is_anonymous:
+		print(message.user)
+		message.reply_channel.send({'accept': True})
+		rooms = Room.objects.filter(users__in=[message.user])
+		for room in rooms:
+			room.websocket_group.add(message.reply_channel)
+		message.channel_session['rooms'] = [room.id for room in rooms]
+		print(message.channel_session['rooms'])
+
+	'''
+	token = check_token(message)
+	if token:
+		message.reply_channel.send({'accept': True})
+		rooms = Room.objects.exclude(status='end')
+		message.user = token.user
+		for room in rooms:
+			if message.user in room.users.all():
+				room.websocket_group.add(message.reply_channel)
+				cache.set('chat_rooms', [room.id for room in rooms])
+				set_user(token)	
+	'''
+	'''
 	message.reply_channel.send({'accept': True})
 	rooms = Room.objects.filter(users__in=[message.user])
 	for room in rooms:
-		#if message.user in room.users.all():
+		#if message.user in room.users.all():+
 		room.websocket_group.add(message.reply_channel)
 	message.channel_session['rooms'] = [room.id for room in rooms]
-
-
-@channel_session_user
+	'''
+#@channel_session_user
+#@path_token_user
 def chat_message(message):
 	payload = json.loads(message['text'])
 	payload['reply_channel'] = message.content['reply_channel']
+	print(payload)
 	Channel("chat.receive").send(payload)
 
-
-@channel_session_user
+#@channel_session_user
+@path_token_user
 def chat_disconnect(message):
 	# Unsubscribe from any connected rooms
-	for room_id in message.channel_session.get("rooms", set()):
+	for room_id in message.get("rooms", set()):
 	    try:
 	        room = Room.objects.get(pk=room_id)
 	        # Removes us from the room's send group. If this doesn't get run,
@@ -37,8 +59,8 @@ def chat_disconnect(message):
 	    except Room.DoesNotExist:
 	        pass
 
-
-@channel_session_user
+#@channel_session_user
+@path_token_user
 @catch_client_error
 def chat_join(message):
 	# Find the room they requested (by ID) and add ourselves to the send group
@@ -67,8 +89,8 @@ def chat_join(message):
 	    }),
 	})
 
-
-@channel_session_user
+#@channel_session_user
+@path_token_user
 @catch_client_error
 def chat_leave(message):
 	# Reverse of join - remove them from everything.
@@ -90,8 +112,8 @@ def chat_leave(message):
 	    }),
 	})
 
-
-@channel_session_user
+#@channel_session_user
+@path_token_user
 @catch_client_error
 def chat_send(message):
 	# Check that the user in the room
@@ -101,3 +123,16 @@ def chat_send(message):
 	room = get_room_or_error(message["room"], message.user)
 	# Send the message along
 	room.send_message(message["message"], message.user)
+
+#@channel_session_user
+#@path_token_user
+@catch_client_error
+def chat_contact(message):
+	# Check that the user in the room
+	print(message)
+	if int(message.channel_session['room']) not in message.channel_session['rooms']:
+	    raise ClientError("ROOM_ACCESS_DENIED")
+	# Find the room they're sending to, check perms
+	#room = get_room_or_error(message["room"], message.user)
+	# Send the message along
+	#room.send_message(message["message"], message.user)
