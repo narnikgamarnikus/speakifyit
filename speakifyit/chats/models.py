@@ -87,6 +87,7 @@ class Message(Base):
 		choices=MESSAGE_TYPES_CHOICES,
 		default=MESSAGE_TYPES_CHOICES[0][0],
 	)
+	is_read = models.BooleanField(default=False)
 
 	@property
 	def timestamp(self):
@@ -94,3 +95,24 @@ class Message(Base):
 
 	def __str__(self):
 		return '{0} at {1}'.format(self.user, self.timestamp)
+
+
+@python_2_unicode_compatible
+class Notification(Base):
+
+	TYPES = (
+		('create_request', _('Create request')),
+		('accept_request', _('Accept request')),
+		('cancel_request', _('Cancel request'))
+		)
+
+	msg_type = models.CharField(choices=TYPES, max_length=20)
+	from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_user')
+	to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_to')
+	content = models.TextField()
+	icon = models.TextField()
+	link = models.URLField()
+
+
+	def __str__(self):
+		return str(self.pk)
