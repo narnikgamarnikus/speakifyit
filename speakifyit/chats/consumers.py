@@ -5,7 +5,7 @@ from channels.auth import channel_session_user
 from .utils import get_room_or_error, catch_client_error
 from speakifyit.users.tasks import create_contact_request
 from .auth import path_token_user
-
+from .tasks import message_edit
 
 @path_token_user
 def chat_connect(message):
@@ -114,3 +114,7 @@ def chat_contact(message):
 		'to_user': message['user']
 		}
 	)
+
+@channel_session_user
+@catch_client_error
+def chat_edit(message):

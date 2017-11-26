@@ -88,6 +88,7 @@ class Message(Base):
 		default=MESSAGE_TYPES_CHOICES[0][0],
 	)
 	is_read = models.BooleanField(default=False)
+	is_editable = models.BooleanField(default=True)
 
 	@property
 	def timestamp(self):
@@ -95,6 +96,17 @@ class Message(Base):
 
 	def __str__(self):
 		return '{0} at {1}'.format(self.user, self.timestamp)
+
+
+class MessageChart(Base):
+	
+	message = models.ForeignKey(Message)
+	approve_users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+	is_approved = models.BooleanField(default=False)
+
+
+	def __str__(self):
+		return str(self.pk) 
 
 
 @python_2_unicode_compatible

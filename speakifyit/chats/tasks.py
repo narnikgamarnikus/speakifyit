@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from annoying.functions import get_object_or_None
 from .signals import create_message
-from .models import Room, Notification
+from .models import Room, Notification, Message, MessageChart
 from speakifyit.users.models import ContactRequest
 from channels import Group
 
@@ -38,10 +38,19 @@ def send_notification(**kwargs):
 		content = kwargs['content'],
 		icon = kwargs['icon'],
 		link = kwargs['link']
-		)
+		)	
 
 	# TODO:
 	# 1. send WebSocket notification or subscribe from client to create Notification
+
+@shared_task
+def message_edit(**kwargs):
+	message = get_object_or_None(Nessage, pk=kwargs['message'])
+	if message:
+		message.content = kwargs['content']
+		message.is_editable = False
+		nessage.save()
+		chart = MessageChart.objects.create(message=message)
 
 @receiver(create_message, sender=Room)
 def receiver_create_message(sender, *args, **kwargs):
