@@ -104,7 +104,6 @@ class MessageChart(Base):
 	approve_users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 	is_approved = models.BooleanField(default=False)
 
-
 	def __str__(self):
 		return str(self.pk) 
 
@@ -115,7 +114,8 @@ class Notification(Base):
 	TYPES = (
 		('create_request', _('Create request')),
 		('accept_request', _('Accept request')),
-		('cancel_request', _('Cancel request'))
+		('cancel_request', _('Cancel request')),
+		('new_edited_message'), _('New edited message')
 		)
 
 	msg_type = models.CharField(choices=TYPES, max_length=20)
@@ -124,7 +124,6 @@ class Notification(Base):
 	content = models.TextField()
 	icon = models.TextField()
 	link = models.URLField()
-
 
 	def __str__(self):
 		return str(self.pk)

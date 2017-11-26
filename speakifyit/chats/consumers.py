@@ -5,7 +5,7 @@ from channels.auth import channel_session_user
 from .utils import get_room_or_error, catch_client_error
 from speakifyit.users.tasks import create_contact_request
 from .auth import path_token_user
-from .tasks import message_edit
+from .tasks import message_edit, toggle_user_online
 
 @path_token_user
 def chat_connect(message):
@@ -16,6 +16,7 @@ def chat_connect(message):
 			room.websocket_group.add(message.reply_channel)
 		message.channel_session['rooms'] = [room.id for room in rooms]
 		print(message.channel_session['rooms'])
+		toggle_user_online.apply_async(message.user)
 
 
 @channel_session_user
@@ -37,7 +38,8 @@ def chat_disconnect(message):
 	        room.websocket_group.discard(message.reply_channel)
 	    except Room.DoesNotExist:
 	        pass
-
+	toggle_user_online.apply_async(message.user)
+	
 
 @channel_session_user
 @catch_client_error
@@ -105,16 +107,18 @@ def chat_send(message):
 @channel_session_user
 @catch_client_error
 def chat_contact(message):
-	print(message)
-	print(message.user)
-	print(message(message['user']))
-
 	create_contact_request.apply_async(kwargs={
 		'from_user': message.user,
 		'to_user': message['user']
 		}
 	)
 
+
 @channel_session_user
 @catch_client_error
 def chat_edit(message):
+	message_edit.apply_async(kwargs={
+		'message': message.['message'],
+		'content': message['content']
+		}
+	)

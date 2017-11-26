@@ -88,6 +88,7 @@ class User(AbstractUser):
     about = models.CharField(max_length=255, null=True, blank=True)
     token = models.UUIDField(verbose_name=_('Token'), default=uuid4, editable=False)
     contacts = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    is_online = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _('User')

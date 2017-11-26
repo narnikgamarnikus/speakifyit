@@ -43,6 +43,14 @@ def send_notification(**kwargs):
 	# TODO:
 	# 1. send WebSocket notification or subscribe from client to create Notification
 
+
+@shared_task
+def toggle_user_online(user_pk):
+	user = get_object_or_None(User, pk=user_pk)
+	user.online = not user.online
+	user.save()
+	
+
 @shared_task
 def message_edit(**kwargs):
 	message = get_object_or_None(Nessage, pk=kwargs['message'])
@@ -51,6 +59,7 @@ def message_edit(**kwargs):
 		message.is_editable = False
 		nessage.save()
 		chart = MessageChart.objects.create(message=message)
+
 
 @receiver(create_message, sender=Room)
 def receiver_create_message(sender, *args, **kwargs):
