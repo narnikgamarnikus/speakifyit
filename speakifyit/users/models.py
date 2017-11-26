@@ -126,7 +126,7 @@ class ContactRequest(Base):
 
     def clean(self):
         if self.request_from == self.request_to:
-            raise  ValidationError('You can not send requests to yourself')
+            raise ValidationError('You can not send requests to yourself')
 
     def __str__(self):
         return str(self.pk)

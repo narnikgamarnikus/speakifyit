@@ -28,3 +28,4 @@ def create_message_task(**kwargs):
 @receiver(create_message, sender=Room)
 def receiver_create_message(sender, *args, **kwargs):
 	create_message_task.apply_async(kwargs=kwargs)
+
