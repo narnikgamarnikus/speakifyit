@@ -1,5 +1,5 @@
 from rest_framework import serializers, pagination
-from .models import Message, Room
+from .models import Message, Room, Notification
 from rest_framework import serializers
 from speakifyit.users.serializers import UserSerializer
 
@@ -17,3 +17,11 @@ class MessageSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Message
 		fields = ('id', 'user', 'msg_type', 'content', 'timestamp', 'created', 'modifed')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Notification
+		fields = '__all__'
+

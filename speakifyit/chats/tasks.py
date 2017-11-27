@@ -6,7 +6,10 @@ from annoying.functions import get_object_or_None
 from .signals import create_message
 from .models import Room, Notification, Message, MessageChart
 from speakifyit.users.models import ContactRequest
-from channels import Group
+from .serializers import NotificationSerializer
+
+from django.core import serializers
+from django.forms.models import model_to_dict
 
 
 @shared_task
@@ -38,10 +41,20 @@ def send_notification(**kwargs):
 		content = kwargs['content'],
 		icon = kwargs['icon'],
 		link = kwargs['link']
-		)	
+		)
 
-	# TODO:
-	# 1. send WebSocket notification or subscribe from client to create Notification
+	user = get_object_or_None(user, pk=kwargs['to_user'])
+	#user.websocket_group.send(
+	#	    {"text": json.dumps(model_to_dict(user)))}
+	#	)
+
+	#user.websocket_group.send(
+	#	{"text": NotificationSerializer(notification).data}
+	#	)
+
+	user.websocket_group.send(
+		    {"text": serializers.serialize('json', [notification, ])}
+		)
 
 
 @shared_task
