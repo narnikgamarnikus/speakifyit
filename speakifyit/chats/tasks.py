@@ -43,18 +43,17 @@ def send_notification(**kwargs):
 		link = kwargs['link']
 		)
 
-	user = get_object_or_None(user, pk=kwargs['to_user'])
+	user = kwargs['from_user']
 	#user.websocket_group.send(
 	#	    {"text": json.dumps(model_to_dict(user)))}
 	#	)
+	user.websocket_group.send(
+		{"text": str(NotificationSerializer(notification).data)}
+	)
 
 	#user.websocket_group.send(
-	#	{"text": NotificationSerializer(notification).data}
+	#	    {"text": serializers.serialize('json', [notification, ])}
 	#	)
-
-	user.websocket_group.send(
-		    {"text": serializers.serialize('json', [notification, ])}
-		)
 
 
 @shared_task
@@ -81,25 +80,28 @@ def receiver_create_message(sender, *args, **kwargs):
 
 @receiver(post_save, sender=ContactRequest)
 def send_requset_notification(sender, instance, created, **kwargs):
+
 	if created:
-		content = 'User {} wants to add you to the chat'.format(instanse.from_user)
+		content = 'User {} wants to add you to the chat'.format(instance.request_from)
 		msg_type = 'create_request'
-		from_user = instanse.from_user
-		to_user = instanse.to_user
+		from_user = instance.request_from
+		to_user = instance.request_to
+	
+	else:
 
-	elif instance.accepted is True:
-		content = 'User {} wants to add you to the chat'.format(instanse.from_user),
-		msg_type = 'create_request'
-		from_user = instanse.to_user
-		to_user = instanse.from_user
+		if instance.accepted is True:
+			content = 'User {} wants to add you to the chat'.format(instance.request_from),
+			msg_type = 'create_request'
+			from_user = instance.request_to
+			to_user = instance.request_from
 
-	elif instance.accepted is False:
-		from_user = instanse.to_user
-		to_user = instanse.from_user
+		else: 
+			from_user = instance.request_to
+			to_user = instance.request_from
 
 	send_notification.apply_async(kwargs={
 		'from_user': from_user,
-		'to_user': to,
+		'to_user': to_user,
 		'msg_type': msg_type,
 		'content': content,
 		'icon':'',

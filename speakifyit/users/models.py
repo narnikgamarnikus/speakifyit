@@ -11,6 +11,7 @@ from django.conf import settings
 from model_utils import Choices
 from uuid import uuid4
 from django.core.validators import MaxValueValidator, MinValueValidator
+from channels import Group
 
 
 def user_directory_path(instance, filename):
@@ -99,6 +100,14 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
+
+    @property
+    def websocket_group(self):
+        """
+        Returns the Channels Group that sockets should subscribe to to get sent
+        messages as they are generated.
+        """
+        return Group("user-%s" % self.id)
 
     @property
     def full_name(self):

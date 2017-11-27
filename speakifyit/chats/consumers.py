@@ -4,7 +4,7 @@ import ujson as json
 from channels.auth import channel_session_user
 from .utils import get_room_or_error, catch_client_error
 from speakifyit.users.tasks import create_contact_request
-from .auth import path_token_user
+from .auth import path_token_user, message_text_token_user, message_content_token_user
 from .tasks import message_edit, toggle_user_online
 
 @path_token_user
@@ -20,11 +20,10 @@ def chat_connect(message):
 		toggle_user_online.apply_async(message.user)
 
 
-@channel_session_user
+@message_text_token_user
 def chat_message(message):
 	payload = json.loads(message['text'])
 	payload['reply_channel'] = message.content['reply_channel']
-	print('CHAT MESSAGE ' + str(payload))
 	Channel("chat.receive").send(payload)
 
 
@@ -43,7 +42,7 @@ def chat_disconnect(message):
 	toggle_user_online.apply_async(message.user)
 	
 
-@channel_session_user
+@message_content_token_user
 @catch_client_error
 def chat_join(message):
 	# Find the room they requested (by ID) and add ourselves to the send group
@@ -72,7 +71,7 @@ def chat_join(message):
 	    }),
 	})
 
-@channel_session_user
+@message_content_token_user
 @catch_client_error
 def chat_leave(message):
 	# Reverse of join - remove them from everything.
@@ -94,7 +93,7 @@ def chat_leave(message):
 	    }),
 	})
 
-@channel_session_user
+@message_content_token_user
 @catch_client_error
 def chat_send(message):
 	# Check that the user in the room
@@ -106,7 +105,7 @@ def chat_send(message):
 	room.send_message(message["message"], message.user)
 
 
-@channel_session_user
+@message_content_token_user
 @catch_client_error
 def chat_contact(message):
 	create_contact_request.apply_async(kwargs={
@@ -116,7 +115,7 @@ def chat_contact(message):
 	)
 
 
-@channel_session_user
+@message_content_token_user
 @catch_client_error
 def chat_edit(message):
 	message_edit.apply_async(kwargs={
