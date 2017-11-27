@@ -59,7 +59,7 @@ class FacebookLogin(SocialLoginView):
 import requests
 from uuid import uuid4
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -113,6 +113,13 @@ class UserViewSet(viewsets.ModelViewSet):
         if user:
             login(request, user)
             return Response(status=status.HTTP_200_OK, data=user.token)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @list_route(methods=['POST'])        
+    def logout(self, request, format=None):
+        if request.user.is_authenticated():
+            logout(request)
+            return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @list_route(methods=['POST'], authentication_classes=[])

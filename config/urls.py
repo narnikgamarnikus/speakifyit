@@ -8,6 +8,7 @@ from speakifyit.chats.api_urls import urlpatterns as chats_urlpatterns
 from speakifyit.users.api_urls import urlpatterns as users_urlpatterns
 from speakifyit.users.views import FacebookLogin
 
+
 rest_auth = [
     
     url(r'^rest-auth/', include('rest_auth.urls')),
@@ -31,7 +32,6 @@ urlpatterns = [
     url(r'^users/', include('speakifyit.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^api/', include(api.urls, namespace='api')),
-
 
     # Your stuff: custom urls includes go here
 
