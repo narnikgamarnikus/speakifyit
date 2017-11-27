@@ -90,6 +90,14 @@ class User(AbstractUser):
     contacts = models.ManyToManyField(settings.AUTH_USER_MODEL)
     is_online = models.BooleanField(default=False)
 
+    @property
+    def websocket_group(self):
+        """
+        Returns the Channels Group that sockets should subscribe to to get sent
+        messages as they are generated.
+        """
+        return Group("user-%s" % self.id)
+
     class Meta:
         verbose_name = _('User')
         verbose_name_plural = _('Users')

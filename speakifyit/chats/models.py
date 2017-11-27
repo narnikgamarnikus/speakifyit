@@ -115,7 +115,7 @@ class Notification(Base):
 		('create_request', _('Create request')),
 		('accept_request', _('Accept request')),
 		('cancel_request', _('Cancel request')),
-		('new_edited_message'), _('New edited message')
+		('new_edited_message', _('New edited message'))
 		)
 
 	msg_type = models.CharField(choices=TYPES, max_length=20)

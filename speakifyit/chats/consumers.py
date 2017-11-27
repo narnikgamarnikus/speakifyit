@@ -14,6 +14,7 @@ def chat_connect(message):
 		rooms = Room.objects.filter(users__in=[message.user])
 		for room in rooms:
 			room.websocket_group.add(message.reply_channel)
+		message.user.websocket_group.add(message.reply_channel)
 		message.channel_session['rooms'] = [room.id for room in rooms]
 		print(message.channel_session['rooms'])
 		toggle_user_online.apply_async(message.user)
@@ -38,6 +39,7 @@ def chat_disconnect(message):
 	        room.websocket_group.discard(message.reply_channel)
 	    except Room.DoesNotExist:
 	        pass
+	message.user.websocket_group.discard(message.reply_channel)	        
 	toggle_user_online.apply_async(message.user)
 	
 
@@ -118,7 +120,7 @@ def chat_contact(message):
 @catch_client_error
 def chat_edit(message):
 	message_edit.apply_async(kwargs={
-		'message': message.['message'],
+		'message': message['message'],
 		'content': message['content']
 		}
 	)
