@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 from rest_framework import serializers
 from django.conf import settings
 
-from .models import User, Language, LanguageSkill
+from .models import User, Language, LanguageSkill, ContactRequest
 from annoying.functions import get_object_or_None
 
 
@@ -86,3 +86,11 @@ class UserWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['is_active']
+
+
+class ContactRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ContactRequest
+        fields = '__all__'
+

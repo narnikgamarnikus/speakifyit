@@ -40,15 +40,18 @@ def send_notification(**kwargs):
 		msg_type = kwargs['msg_type'],
 		content = kwargs['content'],
 		icon = kwargs['icon'],
-		link = kwargs['link']
+		link = kwargs['link'],
+		contact_request = kwargs['contact_request']
 		)
 
 	user = kwargs['from_user']
 	#user.websocket_group.send(
 	#	    {"text": json.dumps(model_to_dict(user)))}
 	#	)
+	data = NotificationSerializer(notification).data
+	print(data)
 	user.websocket_group.send(
-		{"text": str(NotificationSerializer(notification).data)}
+		{"text": json.dumps(data)}
 	)
 
 	#user.websocket_group.send(
@@ -56,11 +59,7 @@ def send_notification(**kwargs):
 	#	)
 
 
-@shared_task
-def toggle_user_online(user_pk):
-	user = get_object_or_None(User, pk=user_pk)
-	user.online = not user.online
-	user.save()
+
 	
 
 @shared_task
@@ -94,16 +93,19 @@ def send_requset_notification(sender, instance, created, **kwargs):
 			msg_type = 'create_request'
 			from_user = instance.request_to
 			to_user = instance.request_from
-
-		else: 
+		
+		else:
 			from_user = instance.request_to
 			to_user = instance.request_from
-
+			content = 'User {} wants to add you to the chat'.format(instance.request_from),
+			msg_type = 'create_request'			
+		
 	send_notification.apply_async(kwargs={
 		'from_user': from_user,
 		'to_user': to_user,
 		'msg_type': msg_type,
 		'content': content,
 		'icon':'',
-		'link':''
+		'link':'',
+		'contact_request': instance
 		})

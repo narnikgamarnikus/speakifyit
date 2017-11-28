@@ -68,8 +68,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
-from .models import User
-from .serializers import UserSerializer, UserWriteSerializer
+from .models import User, ContactRequest
+from .serializers import UserSerializer, UserWriteSerializer, ContactRequestSerializer
 from rest_framework import permissions
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -175,3 +175,9 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(response.json())
         else:
             return Response({'is_valid': True})
+
+
+class ContactRequestViewSet(viewsets.ModelViewSet):
+    queryset = ContactRequest.objects.all()
+    serializer_class = ContactRequestSerializer
+    permission_classes = []

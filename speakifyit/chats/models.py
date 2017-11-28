@@ -118,6 +118,7 @@ class Notification(Base):
 		('new_edited_message', _('New edited message'))
 		)
 
+	contact_request = models.ForeignKey('users.ContactRequest', null=True)
 	msg_type = models.CharField(choices=TYPES, max_length=20)
 	from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_user')
 	to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_to')

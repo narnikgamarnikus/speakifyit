@@ -3,9 +3,9 @@ from .models import Room
 import ujson as json
 from channels.auth import channel_session_user
 from .utils import get_room_or_error, catch_client_error
-from speakifyit.users.tasks import create_contact_request
+from speakifyit.users.tasks import create_contact_request, toggle_user_online
 from .auth import path_token_user, message_text_token_user, message_content_token_user
-from .tasks import message_edit, toggle_user_online
+from .tasks import message_edit
 
 @path_token_user
 def chat_connect(message):
@@ -17,7 +17,7 @@ def chat_connect(message):
 		message.user.websocket_group.add(message.reply_channel)
 		message.channel_session['rooms'] = [room.id for room in rooms]
 		print(message.channel_session['rooms'])
-		toggle_user_online.apply_async(message.user)
+		toggle_user_online.apply_async(message.user.pk)
 
 
 @message_text_token_user

@@ -12,3 +12,9 @@ def create_contact_request(**kwargs):
 			request_from = kwargs['from_user'],
 			request_to = to_user
 		)
+		
+@shared_task
+def toggle_user_online(user_pk):
+	user = get_object_or_None(User, pk=user_pk)
+	user.online = not user.online
+	user.save()

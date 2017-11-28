@@ -1,7 +1,7 @@
 from rest_framework import serializers, pagination
 from .models import Message, Room, Notification
 from rest_framework import serializers
-from speakifyit.users.serializers import UserSerializer
+from speakifyit.users.serializers import UserSerializer, ContactRequestSerializer
 
 class RoomSerializer(serializers.ModelSerializer):
 	users = UserSerializer(many=True)
@@ -20,6 +20,10 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+	from_user = UserSerializer()
+	to_user = UserSerializer()
+	contact_request = ContactRequestSerializer()
+
 
 	class Meta:
 		model = Notification
