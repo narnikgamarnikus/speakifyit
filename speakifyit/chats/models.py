@@ -125,6 +125,7 @@ class Notification(Base):
 	content = models.TextField()
 	icon = models.TextField()
 	link = models.URLField()
+	is_read = models.BooleanField(default=False)
 
 	def __str__(self):
 		return str(self.pk)
