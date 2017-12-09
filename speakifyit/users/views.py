@@ -97,6 +97,29 @@ class UserViewSet(viewsets.ModelViewSet):
         instance.is_active = False
         instance.save()
 
+    def list(self, request):
+        queryset = self.queryset.exclude(pk=request.user.pk)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['GET'])
+    def search(self, request):
+        query = request.query_params.get('query', '')
+        if query:
+            queryset = self.queryset.filter(username__startswith=query)
+        else:
+            queryset = self.queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
     @list_route(methods=['GET'])
     def profile(self, request):
         if request.user.is_authenticated():

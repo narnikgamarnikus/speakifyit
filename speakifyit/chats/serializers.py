@@ -1,6 +1,5 @@
-from rest_framework import serializers, pagination
-from .models import Message, Room, Notification
 from rest_framework import serializers
+from .models import Message, Room, Notification
 from speakifyit.users.serializers import UserSerializer, ContactRequestSerializer
 
 class RoomSerializer(serializers.ModelSerializer):

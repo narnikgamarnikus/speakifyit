@@ -1,9 +1,7 @@
 """
 Django settings for speakifyit project.
-
 For more information on this file, see
 https://docs.djangoproject.com/en/dev/topics/settings/
-
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
@@ -37,7 +35,7 @@ DJANGO_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    #'django.contrib.postgres',
     # Useful template tags:
     # 'django.contrib.humanize',
 
@@ -79,6 +77,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    #'corsheaders.middleware.CorsPostCsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -304,9 +303,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 12
 }
 
-CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8080/login'
-)
+CORS_ORIGIN_ALLOW_ALL = True
 
 CHANNELS_API = {
   'DEFAULT_PAGE_SIZE': 25,

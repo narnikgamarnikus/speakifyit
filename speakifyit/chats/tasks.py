@@ -83,16 +83,16 @@ def send_requset_notification(sender, instance, created, **kwargs):
 	if created:
 		content = 'User {} wants to add you to the chat'.format(instance.request_from)
 		msg_type = 'create_request'
-		from_user = instance.request_from
-		to_user = instance.request_to
+		from_user = instance.request_to
+		to_user = instance.request_from
 	
 	else:
 
 		if instance.accepted is True:
-			content = 'User {} wants to add you to the chat'.format(instance.request_from),
+			content = 'User {} added you to the chat'.format(instance.to),
 			msg_type = 'create_request'
-			from_user = instance.request_to
-			to_user = instance.request_from
+			from_user = instance.request_from
+			to_user = instance.request_to
 		
 		else:
 			from_user = instance.request_to
