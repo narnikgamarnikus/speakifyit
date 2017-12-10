@@ -29,7 +29,6 @@ def create_message_task(**kwargs):
 		msg = Message.objects.create(
 			user = kwargs['user'], content = content, msg_type = kwargs['msg_type'] 
 		)
-		print('message was created')
 
 
 @shared_task
@@ -45,22 +44,11 @@ def send_notification(**kwargs):
 		)
 
 	user = kwargs['from_user']
-	#user.websocket_group.send(
-	#	    {"text": json.dumps(model_to_dict(user)))}
-	#	)
 	data = NotificationSerializer(notification).data
-	print(data)
 	user.websocket_group.send(
 		{"text": json.dumps(data)}
 	)
 
-	#user.websocket_group.send(
-	#	    {"text": serializers.serialize('json', [notification, ])}
-	#	)
-
-
-
-	
 
 @shared_task
 def message_edit(**kwargs):
@@ -77,6 +65,11 @@ def receiver_create_message(sender, *args, **kwargs):
 	create_message_task.apply_async(kwargs=kwargs)
 
 
+@receiver(post_save, sender=Room)
+def send_created_room_notification(sender, instance, created, **kwargs):
+	if created:
+		pass
+
 @receiver(post_save, sender=ContactRequest)
 def send_requset_notification(sender, instance, created, **kwargs):
 
@@ -89,11 +82,15 @@ def send_requset_notification(sender, instance, created, **kwargs):
 	else:
 
 		if instance.accepted is True:
-			content = 'User {} added you to the chat'.format(instance.to),
+			content = 'User {} added you to the chat'.format(instance.request_to),
 			msg_type = 'create_request'
 			from_user = instance.request_from
 			to_user = instance.request_to
-		
+
+			room = Room.objects.create()
+			room.users.add(instance.request_from, instance.request_to)
+			room.save()
+
 		else:
 			from_user = instance.request_to
 			to_user = instance.request_from

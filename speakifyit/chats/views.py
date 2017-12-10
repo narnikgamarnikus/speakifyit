@@ -15,9 +15,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['POST'])
     def is_read(self, request):
     	pk = request.data.get('id', None)
-    	print(pk)
     	notification = get_object_or_None(Notification, id=pk)
-    	print(notification)
     	if notification:
     		notification.is_read = True
     		return Response(status=status.HTTP_200_OK)
